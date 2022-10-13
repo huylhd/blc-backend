@@ -1,5 +1,12 @@
+import { Comment } from "src/modules/comments/entities/comment.entity";
 import { Post } from "src/modules/posts/entities/post.entity";
-import { Column, Entity, OneToMany, PrimaryColumn } from "typeorm";
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryColumn,
+} from "typeorm";
 
 @Entity({
   name: "users",
@@ -13,4 +20,10 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.author)
   posts: Post[];
+
+  @OneToMany(() => Comment, (comment) => comment.author)
+  comments: Comment[];
+
+  @CreateDateColumn()
+  createdAt: Date;
 }

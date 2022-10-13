@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { genId } from "src/utils/genid.util";
 import { Repository } from "typeorm";
@@ -13,12 +13,6 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const existedUser = await this.userRepo.findOne({
-      where: { username: createUserDto.username },
-    });
-    if (existedUser) {
-      throw new ConflictException("Username has been taken");
-    }
     const newUser = this.userRepo.create({
       ...createUserDto,
       id: genId(),
@@ -29,5 +23,9 @@ export class UsersService {
 
   findOne(id: string) {
     return this.userRepo.findOneBy({ id });
+  }
+
+  findOneByUsername(username: string) {
+    return this.userRepo.findOneBy({ username });
   }
 }

@@ -1,29 +1,25 @@
-import { Comment } from "src/modules/comments/entities/comment.entity";
+import { Post } from "src/modules/posts/entities/post.entity";
 import { User } from "src/modules/users/entities/user.entity";
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryColumn,
-  CreateDateColumn,
-  OneToMany,
 } from "typeorm";
 
 @Entity({
-  name: "posts",
+  name: "comments",
 })
-export class Post {
+export class Comment {
   @PrimaryColumn()
   id: string;
 
   @Column()
-  imageUrl: string;
+  comment: string;
 
-  @Column({ nullable: true })
-  caption: string;
-
-  @ManyToOne(() => User, (user) => user.posts, {
+  @ManyToOne(() => User, (user) => user.comments, {
     cascade: true,
     onDelete: "CASCADE",
   })
@@ -33,8 +29,15 @@ export class Post {
   @Column({ nullable: true })
   authorId: string;
 
-  @OneToMany(() => Comment, (comment) => comment.post)
-  comments: Comment[];
+  @ManyToOne(() => Post, (post) => post.comments, {
+    cascade: true,
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "postId" })
+  post: Post;
+
+  @Column({ nullable: true })
+  postId: string;
 
   @CreateDateColumn()
   createdAt: Date;

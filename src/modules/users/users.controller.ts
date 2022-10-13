@@ -1,4 +1,11 @@
-import { Controller, Post, Body, Get, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UseGuards,
+  ConflictException,
+} from "@nestjs/common";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { RequestUser } from "src/decorators/user.decorator";
@@ -10,7 +17,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto) {
+    const existedUser = await this.usersService.findOneByUsername(
+      createUserDto.username,
+    );
+    if (existedUser) {
+      throw new ConflictException("Username has been taken");
+    }
     return this.usersService.create(createUserDto);
   }
 

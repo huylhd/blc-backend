@@ -21,4 +21,8 @@ export class PostsService {
     await this.postRepo.insert(newPost);
     return newPost;
   }
+
+  findOne(id: string) {
+    return this.postRepo.findOneBy({ id });
+  }
 }

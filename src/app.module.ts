@@ -4,13 +4,15 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { appConfig } from "./app-config";
 import { DatabaseModule } from "./database/database.module";
-import { UsersModule } from "src/modules/users/users.module";
+import { PostsModule } from "./modules/posts/posts.module";
+import { UsersModule } from "./modules/users/users.module";
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [appConfig] }),
     DatabaseModule,
     UsersModule,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -27,19 +27,7 @@ export class UsersService {
     return newUser;
   }
 
-  // findAll() {
-  //   return `This action returns all users`;
-  // }
-
   findOne(id: string) {
-    return this.userRepo.findBy({ id });
+    return this.userRepo.findOneBy({ id });
   }
-
-  // update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
 }

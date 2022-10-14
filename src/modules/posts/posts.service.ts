@@ -32,13 +32,20 @@ export class PostsService {
     return this.postRepo.findOneBy({ id });
   }
 
-  async findAll({ limit, cursor }: { limit: number; cursor: ICommentCursor }) {
+  async findAll({
+    limit = 10,
+    cursor,
+  }: {
+    limit: number;
+    cursor: ICommentCursor;
+  }) {
     if (isNil(cursor?.commentCount)) {
       cursor.commentCount = "+inf";
     }
     cursor.seqId = cursor.seqId || -1;
     limit++;
 
+    /* Implement querying with cursor */
     let cursorWhere = `WHERE "commentCount"::NUMERIC < $1::NUMERIC 
     OR ("commentCount"::NUMERIC = $1::NUMERIC AND "seqId" > $2::NUMERIC)
     ORDER BY "commentCount" DESC, "seqId" ASC`;
@@ -49,7 +56,11 @@ export class PostsService {
       ORDER BY "commentCount" ASC, "seqId" DESC`;
     }
 
-    /* This sub query is to limit comments for each post -> 2, order by `createdAt` */
+    /* 
+    This sub query is to limit number comments for each post
+    The `commentsPerPost` limit is set in config, default = 2
+    Comments are ordered by `createdAt` DESC 
+    */
     const limitCommentQuery = `SELECT c.*
     FROM comments c WHERE c."createdAt" >= COALESCE(
     (SELECT c2."createdAt" FROM comments c2
@@ -57,7 +68,7 @@ export class PostsService {
     ORDER BY c2."createdAt" desc
     LIMIT 1 OFFSET $4)
     , c."createdAt")
-    AND c."isDeleted" = false `;
+    AND c."deletedAt" is null `;
 
     const rawResult: any[] = await this.postRepo.manager.query(
       `SELECT "commentCount", "imageUrl", "comment", "seqId",

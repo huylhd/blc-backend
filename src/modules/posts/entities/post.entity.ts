@@ -9,6 +9,7 @@ import {
   CreateDateColumn,
   OneToMany,
   Generated,
+  Index,
 } from "typeorm";
 
 @Entity({
@@ -20,9 +21,11 @@ export class Post {
 
   @Column()
   @Generated()
+  @Index()
   seqId: number;
 
   @Column({ default: 0 })
+  @Index()
   commentCount: number;
 
   @Column()
@@ -46,7 +49,4 @@ export class Post {
 
   @CreateDateColumn()
   createdAt: Date;
-
-  @Column({ default: false })
-  isDeleted: boolean;
 }

@@ -1,0 +1,109 @@
+service: blc-backend
+
+plugins:
+  - serverless-offline
+  - serverless-dotenv-plugin
+  - serverless-add-api-key
+
+useDotenv: true
+
+provider:
+  name: aws
+  runtime: nodejs14.x
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_NAME: ${env:DB_NAME}
+    DB_USER: ${env:DB_USER}
+    BUCKET_NAME: ${env:BUCKET_NAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    REDIS_HOST: ${env:REDIS_HOST}
+    REDIS_PORT: ${env:REDIS_PORT}
+    REDIS_PASSWORD: ${env:REDIS_PASSWORD}
+  apiKeys:
+    - name: x-api-key
+      value: ${env:API_KEY}
+
+resources:
+  Resources:
+    ServerlessInternetGateway:
+      Type: AWS::EC2::InternetGateway
+      Properties:
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessInternetGateway"
+
+    ServerlessVPC:
+      Type: AWS::EC2::VPC
+      Properties:
+        CidrBlock: 10.0.0.0/16
+        EnableDnsSupport: true
+        EnableDnsHostnames: true
+        InstanceTenancy: default
+        Tags:
+          - Key: "Name"
+            Value: "ServerlessVPC"
+
+    ServerlessVPCGA:
+      Type: AWS::EC2::VPCGatewayAttachment
+      Properties:
+        VpcId:
+          Ref: ServerlessVPC
+        InternetGatewayId:
+          Ref: ServerlessInternetGateway
+
+    PostgreSqlRDS:
+      DependsOn: ServerlessVPCGA
+      Type: AWS::RDS::DBInstance
+      Properties:
+        AllocatedStorage: "5"
+        AllowMajorVersionUpgrade: true
+        DBName: ${env:DB_NAME}
+        MasterUsername: ${env:DB_USER}
+        MasterUserPassword: ${env:DB_PASSWORD}
+        EngineVersion: "14.4"
+        Engine: postgres
+        DBInstanceClass: db.t3.micro
+        PubliclyAccessible: true
+
+    Bucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${env:BUCKET_NAME}
+        VersioningConfiguration:
+          Status: Enabled
+        CorsConfiguration:
+          CorsRules:
+            - AllowedHeaders: ["*"]
+              AllowedMethods: [GET, PUT]
+              AllowedOrigins: ["*"]
+              Id: CORSRuleId1
+              MaxAge: "3600"
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref Bucket
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Action:
+                - "s3:GetObject"
+              Effect: Allow
+              Principal: "*"
+              Resource:
+                - arn:aws:s3:::${env:BUCKET_NAME}/*
+                - arn:aws:s3:::${env:BUCKET_NAME}
+
+functions:
+  main:
+    handler: dist/main.lambdaHandler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: "{proxy+}"
+          private: true
+    timeout: 30

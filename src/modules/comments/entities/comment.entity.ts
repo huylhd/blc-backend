@@ -42,6 +42,6 @@ export class Comment {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ default: false })
-  isDeleted: boolean;
+  @Column({ nullable: true })
+  deletedAt: Date;
 }

@@ -49,7 +49,7 @@ export class CommentsService {
   }
 
   findOne(id: string) {
-    return this.commentRepo.findOneBy({ id, isDeleted: false });
+    return this.commentRepo.findOneBy({ id, deletedAt: null });
   }
 
   async delete(commentId: string) {
@@ -64,18 +64,15 @@ export class CommentsService {
       if (!comment) {
         throw Error("Comment not found");
       }
+      const postId = comment.postId;
       // Update the commentCount of post before adding a comment
-      const postUpdateResult = await queryRunner.manager.update(
-        Post,
-        comment.postId,
-        {
-          commentCount: () => '"commentCount" - 1',
-        },
-      );
+      const postUpdateResult = await queryRunner.manager.update(Post, postId, {
+        commentCount: () => '"commentCount" - 1',
+      });
       if (postUpdateResult.affected < 1) {
         throw Error("Failed to update post");
       }
-      comment.isDeleted = true;
+      comment.deletedAt = new Date();
       await queryRunner.manager.save(comment);
       await queryRunner.commitTransaction();
       return true;

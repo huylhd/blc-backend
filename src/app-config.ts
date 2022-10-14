@@ -7,7 +7,7 @@ export const appConfig = () => ({
     username: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "123456",
     entities: ["dist/**/*.entity.js"],
-    synchronize: true,
+    synchronize: false,
     logging: ["query"],
   },
   redis: {

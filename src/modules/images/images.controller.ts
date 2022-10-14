@@ -15,9 +15,11 @@ import { InjectQueue } from "@nestjs/bull";
 import { Queue } from "bull";
 import { mimeTypeFilter } from "src/filters/mime-type.filter";
 import { QueueNames } from "src/enums/queue-names.enum";
+import { ApiOperation, ApiTags } from "@nestjs/swagger";
 
 @UseGuards(AuthGuard)
 @Controller("images")
+@ApiTags("images", "v1")
 export class ImagesController {
   constructor(
     private readonly imagesService: ImagesService,
@@ -34,6 +36,7 @@ export class ImagesController {
       fileFilter: mimeTypeFilter("jpg", "jpeg", "png", "bmp"),
     }),
   )
+  @ApiOperation({ summary: "Upload a new image" })
   async create(
     @UploadedFile() file: Express.Multer.File,
     @RequestUser() user: User,

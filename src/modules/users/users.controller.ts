@@ -11,13 +11,17 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { RequestUser } from "src/decorators/user.decorator";
 import { User } from "./entities/user.entity";
 import { AuthGuard } from "src/guards/auth.guard";
+import { ApiOperation, ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { AuthHeaders } from "src/enums/auth-header.enum";
 
 @Controller("users")
+@ApiTags("users", "v1")
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
+  @ApiOperation({ summary: "Create a new user" })
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const existedUser = await this.usersService.findOneByUsername(
       createUserDto.username,
     );
@@ -29,7 +33,9 @@ export class UsersController {
 
   @UseGuards(AuthGuard)
   @Get("me")
-  me(@RequestUser() user: User) {
+  @ApiSecurity(AuthHeaders.USER)
+  @ApiOperation({ summary: "Get current user info" })
+  me(@RequestUser() user: User): User {
     return user;
   }
 }

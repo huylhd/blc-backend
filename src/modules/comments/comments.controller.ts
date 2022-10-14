@@ -9,7 +9,9 @@ import {
   ForbiddenException,
   UnprocessableEntityException,
 } from "@nestjs/common";
+import { ApiOperation, ApiSecurity, ApiTags } from "@nestjs/swagger";
 import { RequestUser } from "src/decorators/user.decorator";
+import { AuthHeaders } from "src/enums/auth-header.enum";
 import { AuthGuard } from "src/guards/auth.guard";
 import { PostsService } from "../posts/posts.service";
 import { User } from "../users/entities/user.entity";
@@ -18,6 +20,8 @@ import { CreateCommentDto } from "./dto/create-comment.dto";
 
 @UseGuards(AuthGuard)
 @Controller()
+@ApiTags("comments", "v1")
+@ApiSecurity(AuthHeaders.USER)
 export class CommentsController {
   constructor(
     private readonly commentsService: CommentsService,
@@ -25,6 +29,7 @@ export class CommentsController {
   ) {}
 
   @Post("posts/:postId/comments")
+  @ApiOperation({ summary: "Create a new comment on a post" })
   async create(
     @RequestUser() user: User,
     @Body() createCommentDto: CreateCommentDto,
@@ -46,6 +51,9 @@ export class CommentsController {
   }
 
   @Delete("posts/:postId/comments/:commentId")
+  @ApiOperation({
+    summary: "Delete a comment made by current user (soft delete)",
+  })
   async delete(
     @RequestUser() user: User,
     @Param("postId") postId: string,

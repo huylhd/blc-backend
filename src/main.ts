@@ -3,6 +3,8 @@ import { NestFactory } from "@nestjs/core";
 import { Callback, Context, Handler } from "aws-lambda";
 import { configure as serverlessExpress } from "@vendia/serverless-express";
 import { AppModule } from "./app.module";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { AuthHeaders } from "./enums/auth-header.enum";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -14,6 +16,16 @@ async function bootstrap() {
     defaultVersion: "1",
     type: VersioningType.URI,
   });
+
+  /* API Documentation with Swagger */
+  const config = new DocumentBuilder()
+    .setDescription("API documentation")
+    .setVersion("1.0")
+    .addApiKey({ type: "apiKey" }, AuthHeaders.API_KEY)
+    .addApiKey({ type: "apiKey" }, AuthHeaders.USER)
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("documentation", app, document);
 
   await app.listen(3000);
 

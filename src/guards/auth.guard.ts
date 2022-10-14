@@ -7,6 +7,7 @@ import {
 } from "@nestjs/common";
 import { UsersService } from "src/modules/users/users.service";
 import { ICustomRequest } from "src/interfaces/request.interface";
+import { AuthHeaders } from "src/enums/auth-header.enum";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -19,9 +20,9 @@ export class AuthGuard implements CanActivate {
     let request = context.switchToHttp().getRequest();
 
     // Simple auth using userid `header`
-    const userId = request.headers["userid"];
+    const userId = request.headers[AuthHeaders.USER.toLowerCase()];
     if (!userId) {
-      throw new UnauthorizedException("userid header not found");
+      throw new UnauthorizedException(`${AuthHeaders.USER} header not found`);
     }
     const user = await this.userService.findOne(userId);
     if (!user) {

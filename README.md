@@ -1,73 +1,175 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# blc-backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## About the Project
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### Description
 
-## Description
+Backend for a simple post-comment app
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### Tech Stack
 
-## Installation
+<ul>
+  <li><a href="https://www.typescriptlang.org/">Typescript</a></li>
+  <li><a href="https://nestjs.com/">Nest.js</a></li>
+  <li><a href="https://www.postgresql.org/">PostgreSQL<a></li>
+  <li><a href="https://redis.io/">Redis</a></li>
+  <li><a href="https://aws.amazon.com/s3/">Amazon S3</a></li>
+  <li><a href="https://www.serverless.com/>">Serverless</a></li>
+</ul>
+
+## Getting Started
+
+### Prerequisites
+
+Install Yarn
 
 ```bash
-$ npm install
+npm install --global yarn
 ```
 
-## Running the app
+### Installation
+
+Clone the repo
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/huylhd/blc-backend.git
 ```
 
-## Test
+Install dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+cd blc-backend && yarn
 ```
 
-## Support
+Create `.env` file for environment variables
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+cat .env.example > .env
+```
 
-## Stay in touch
+To run this project, you will need to add the following environment variables to your .env file
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+DB_NAME="Postgres database name"
+DB_USER="Postgres username"
+DB_PASSWORD="Postgres user password"
+DB_HOST="Postgres host"
+DB_PORT="Postgres port"
+API_KEY="Api key for serverless app"
+BUCKET_NAME="S3 bucket"
+REDIS_HOST="Redis host"
+REDIS_PORT="Redis port"
+REDIS_PASSWORD="Redis password"
+```
 
-## License
+### Run locally
 
-Nest is [MIT licensed](LICENSE).
+```bash
+yarn run start:dev
+```
+
+### Run locally using serverless-offline plugin
+
+```bash
+sls offline
+```
+
+### Deployment
+
+```bash
+sls deploy
+```
+
+### API
+
+swagger-ui: http://127.0.0.1:3000/documentation.html
+
+<img src="images/Doc.png"/>
+
+### Authentication
+
+- Protected APIs: Requires `x-user` header (using `user.id` as value)
+- When deployed, requires `x-api-key` header in all requests (value can be set in `.env`)
+
+## Features
+
+### Cursor pagination
+
+Implement cursor pagination to get list of posts, order by number of comments descending
+
+**Request**
+
+```
+GET /api/v1/posts?limit={limit}&cursor={cursor}
+```
+
+**Response**
+
+```json
+{
+  "data": [...],
+  "paging": {
+    "nextCursor": "eyJjb21tZW50Q291bnQiOjEsInNlcUlkIjozLCJ0eXBlIjoiYmVmb3JlIn0=",
+    "prevCursor": "eyJjb21tZW50Q291bnQiOjAsInNlcUlkIjoxLCJ0eXBlIjoiYmVmb3JlIn0"
+  }
+}
+```
+
+### Image processing queue
+
+Implement a task queue with Bull Queue and Redis to upload image API
+
+**Upload flow**
+<img src="images/Upload-flow.png"/>
+
+- File is uploaded through upload api
+- Server insert a record into `images` table, return created data as response
+
+**Request**
+
+```
+POST /api/v1/images/upload
+```
+
+**Response**
+
+```json
+{
+  "id": "0L97JK1B4RX6Z15",
+  "originalName": "Kim-jisoo.jpg",
+  "authorId": "3DHSWFEFPBOAWO9",
+  "status": "started"
+}
+```
+
+- A new task containing file data is added to Bull Queue
+- Task consumer pick up the task and start processing
+- Image is resized to `600x600` and uploaded to **Amazon S3** (along with the original image)
+- Update the path and status for image in database
+
+**Note**: The client needs to perform some types of polling to get the image path once updated
+
+## Deployment
+
+All configurations to deploy project is configured in `serverless.yml` file
+
+<ul>
+  <li><a href="https://www.serverless.com/>">Serverless</a></li>
+  <li><a href="https://aws.amazon.com/lambda/>">Amazon Lambda</a></li>
+  <li><a href="https://aws.amazon.com/rds/">Amazon RDS</a></li>
+  <li><a href="https://aws.amazon.com/s3/">Amazon S3</a></li>
+</ul>
+
+### Issue
+
+We're having issue getting the address and port of RDS instance in `serverless.yml`. Currently the syntax
+
+```
+!GetAtt RDSDatabase.Endpoint.Address
+```
+
+is always returning `[object Object]`
+
+**Temporary solution**
+
+Manually putting the host and port of RDS instance in `.env`

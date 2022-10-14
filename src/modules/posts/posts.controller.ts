@@ -1,9 +1,15 @@
-import { Controller, Post, Body, UseGuards } from "@nestjs/common";
+import { Controller, Post, Body, UseGuards, Get, Query } from "@nestjs/common";
 import { PostsService } from "./posts.service";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { AuthGuard } from "src/guards/auth.guard";
 import { RequestUser } from "src/decorators/user.decorator";
 import { User } from "../users/entities/user.entity";
+import { FindAllPostDto } from "./dto/find-all-post.dto";
+import {
+  decodeCursor,
+  getListAndPaging,
+} from "src/utils/cursor-pagination.util";
+import { cloneDeep } from "lodash";
 
 @UseGuards(AuthGuard)
 @Controller("posts")
@@ -15,23 +21,19 @@ export class PostsController {
     return this.postsService.create(createPostDto, user.id);
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.postsService.findAll();
-  // }
-
-  // @Get(":id")
-  // findOne(@Param("id") id: string) {
-  //   return this.postsService.findOne(+id);
-  // }
-
-  // @Patch(":id")
-  // update(@Param("id") id: string, @Body() updatePostDto: UpdatePostDto) {
-  //   return this.postsService.update(+id, updatePostDto);
-  // }
-
-  // @Delete(":id")
-  // remove(@Param("id") id: string) {
-  //   return this.postsService.remove(+id);
-  // }
+  @Get()
+  async findAll(@Query() query: FindAllPostDto) {
+    const { limit, cursor: encodedCursor } = query;
+    const cursor = decodeCursor(encodedCursor);
+    const data = await this.postsService.findAll({
+      limit,
+      cursor: cloneDeep(cursor),
+    });
+    return getListAndPaging({
+      data,
+      cursor,
+      keys: ["commentCount", "seqId"],
+      limit,
+    });
+  }
 }

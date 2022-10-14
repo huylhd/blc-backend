@@ -10,4 +10,7 @@ export const appConfig = () => ({
     synchronize: true,
     logging: ["query"],
   },
+  post: {
+    commentsPerPost: 2,
+  },
 });

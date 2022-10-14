@@ -8,6 +8,7 @@ import {
   PrimaryColumn,
   CreateDateColumn,
   OneToMany,
+  Generated,
 } from "typeorm";
 
 @Entity({
@@ -16,6 +17,13 @@ import {
 export class Post {
   @PrimaryColumn()
   id: string;
+
+  @Column()
+  @Generated()
+  seqId: number;
+
+  @Column({ default: 0 })
+  commentCount: number;
 
   @Column()
   imageUrl: string;
@@ -38,4 +46,7 @@ export class Post {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column({ default: false })
+  isDeleted: boolean;
 }

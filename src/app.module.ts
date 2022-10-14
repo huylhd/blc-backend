@@ -6,6 +6,7 @@ import { appConfig } from "./app-config";
 import { DatabaseModule } from "./database/database.module";
 import { PostsModule } from "./modules/posts/posts.module";
 import { UsersModule } from "./modules/users/users.module";
+import { CommentsModule } from "./modules/comments/comments.module";
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { UsersModule } from "./modules/users/users.module";
     DatabaseModule,
     UsersModule,
     PostsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

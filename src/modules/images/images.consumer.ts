@@ -66,13 +66,15 @@ export class ImagesConsumer {
       image.originalPath = originalUpload.Location;
       image.resizePath = resizeUpload.Location;
       image.status = ImageStatusEnum.UPLOADED;
+      await this.imageRepo.save(image);
     } catch (error) {
       this.logger.error(
         `Process resizeAndUpload for image #${imageId} failed: ${error.message}`,
       );
       image.status = ImageStatusEnum.FAILED;
+      await this.imageRepo.save(image);
+      return;
     }
-    await this.imageRepo.save(image);
     this.logger.log(`Process resizeAndUpload success for image #${imageId}`);
   }
 }

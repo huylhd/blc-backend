@@ -18,7 +18,7 @@ export class PostsService {
     private configService: ConfigService,
   ) {}
 
-  async create(createPostDto: CreatePostDto, authorId: string) {
+  async create(createPostDto: CreatePostDto, authorId: string): Promise<Post> {
     const newPost = this.postRepo.create({
       ...createPostDto,
       id: genId(),
@@ -28,7 +28,7 @@ export class PostsService {
     return newPost;
   }
 
-  findOne(id: string) {
+  findOne(id: string): Promise<Post> {
     return this.postRepo.findOneBy({ id });
   }
 

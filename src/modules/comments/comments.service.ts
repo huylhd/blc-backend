@@ -17,7 +17,7 @@ export class CommentsService {
     createCommentDto: CreateCommentDto,
     postId: string,
     authorId: string,
-  ) {
+  ): Promise<Comment> {
     const queryRunner = this.commentRepo.manager.connection.createQueryRunner();
 
     /* START TRANSACTION */
@@ -48,11 +48,11 @@ export class CommentsService {
     /* END TRANSACTION */
   }
 
-  findOne(id: string) {
+  findOne(id: string): Promise<Comment> {
     return this.commentRepo.findOneBy({ id, deletedAt: null });
   }
 
-  async delete(commentId: string) {
+  async delete(commentId: string): Promise<boolean> {
     const queryRunner = this.commentRepo.manager.connection.createQueryRunner();
 
     /* START TRANSACTION */

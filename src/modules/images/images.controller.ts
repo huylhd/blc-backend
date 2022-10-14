@@ -5,6 +5,10 @@ import {
   UploadedFile,
   UseGuards,
   BadRequestException,
+  Res,
+  HttpStatus,
+  Get,
+  Param,
 } from "@nestjs/common";
 import { ImagesService } from "./images.service";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -16,6 +20,7 @@ import { Queue } from "bull";
 import { mimeTypeFilter } from "src/filters/mime-type.filter";
 import { QueueNames } from "src/enums/queue-names.enum";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Response } from "express";
 
 @UseGuards(AuthGuard)
 @Controller("images")
@@ -38,6 +43,7 @@ export class ImagesController {
   )
   @ApiOperation({ summary: "Upload a new image" })
   async create(
+    @Res() res: Response,
     @UploadedFile() file: Express.Multer.File,
     @RequestUser() user: User,
   ) {
@@ -47,17 +53,23 @@ export class ImagesController {
       user.id,
     );
 
-    // Add a job to processing queue
-    this.imageQueue.add(
-      "resizeAndUpload",
-      { imageId: image.id, bufferStr: file.buffer.toString("base64") },
-      { removeOnComplete: true },
-    );
-
     /* 
     Return image record, the client can do some form of 
     polling to get image url when it's done
     */
-    return image;
+    res.status(HttpStatus.CREATED).json(image);
+
+    // Add a job to processing queue
+    await this.imageQueue.add(
+      "resizeAndUpload",
+      { imageId: image.id, bufferStr: file.buffer.toString("base64") },
+      { removeOnComplete: true },
+    );
+  }
+
+  @Get(":id")
+  @ApiOperation({ summary: "Get an image" })
+  async get(@Param("id") id: string) {
+    return this.imagesService.findOne(id);
   }
 }

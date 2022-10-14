@@ -12,7 +12,10 @@ export class ImagesService {
     private imageRepo: Repository<Image>,
   ) {}
 
-  async create(createImageDto: CreateImageDto, authorId: string) {
+  async create(
+    createImageDto: CreateImageDto,
+    authorId: string,
+  ): Promise<Image> {
     const newImage = this.imageRepo.create({
       ...createImageDto,
       id: genId(),
@@ -20,5 +23,9 @@ export class ImagesService {
     });
     await this.imageRepo.insert(newImage);
     return newImage;
+  }
+
+  findOne(id: string): Promise<Image> {
+    return this.imageRepo.findOneBy({ id });
   }
 }

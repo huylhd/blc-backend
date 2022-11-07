@@ -125,6 +125,8 @@ Implement a task queue with Bull Queue and Redis to upload image API
 - File is uploaded through upload api
 - Server insert a record into `images` table, return created data as response
 
+`UPDATE: Because we are using Lambda, we will replace Redis with SQS, and the consumer will be a lambda function triggered by SQS.`
+
 **Request**
 
 ```

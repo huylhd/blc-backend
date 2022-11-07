@@ -21,6 +21,7 @@ import { mimeTypeFilter } from "src/filters/mime-type.filter";
 import { QueueNames } from "src/enums/queue-names.enum";
 import { ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
+import { SQS } from "aws-sdk";
 
 @UseGuards(AuthGuard)
 @Controller("images")
@@ -53,6 +54,11 @@ export class ImagesController {
       user.id,
     );
 
+    await this.imagesService.sendToQueue(
+      image.id,
+      file.buffer.toString("base64"),
+    );
+
     /* 
     Return image record, the client can do some form of 
     polling to get image url when it's done
@@ -60,11 +66,11 @@ export class ImagesController {
     res.status(HttpStatus.CREATED).json(image);
 
     // Add a job to processing queue
-    await this.imageQueue.add(
-      "resizeAndUpload",
-      { imageId: image.id, bufferStr: file.buffer.toString("base64") },
-      { removeOnComplete: true },
-    );
+    // await this.imageQueue.add(
+    //   "resizeAndUpload",
+    //   { imageId: image.id, bufferStr: file.buffer.toString("base64") },
+    //   { removeOnComplete: true },
+    // );
   }
 
   @Get(":id")

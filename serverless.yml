@@ -1,11 +1,19 @@
 service: blc-backend
 
 plugins:
+  - serverless-offline-sqs
   - serverless-offline
   - serverless-dotenv-plugin
   - serverless-add-api-key
 
 useDotenv: true
+
+custom:
+  serverless-offline-sqs:
+    autoCreate: true
+    apiVersion: "2012-11-05"
+    endpoint: "http://0.0.0.0:9324"
+    region: "us-east-1"
 
 provider:
   name: aws
@@ -20,6 +28,7 @@ provider:
     REDIS_HOST: ${env:REDIS_HOST}
     REDIS_PORT: ${env:REDIS_PORT}
     REDIS_PASSWORD: ${env:REDIS_PASSWORD}
+    SQS_IMAGE_QUEUE: ${env:SQS_IMAGE_QUEUE}
   apiKeys:
     - name: x-api-key
       value: ${env:API_KEY}
@@ -95,9 +104,14 @@ resources:
                 - arn:aws:s3:::${env:BUCKET_NAME}/*
                 - arn:aws:s3:::${env:BUCKET_NAME}
 
+    ImageQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ImageQueue
+
 functions:
   main:
-    handler: dist/main.lambdaHandler
+    handler: dist/src/main.lambdaHandler
     events:
       - http:
           method: ANY
@@ -107,3 +121,12 @@ functions:
           path: "{proxy+}"
           private: true
     timeout: 30
+
+  image_processing:
+    handler: dist/lambda/image-processing.handler
+    events:
+      - sqs:
+          arn:
+            Fn::GetAtt:
+              - ImageQueue
+              - Arn

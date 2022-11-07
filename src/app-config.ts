@@ -22,4 +22,7 @@ export const appConfig = () => ({
   queues: {
     images: "images",
   },
+  sqs_image_queue:
+    process.env.SQS_IMAGE_QUEUE ||
+    "http://localhost:9324/000000000000/ImageQueue",
 });
